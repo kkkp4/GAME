@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This or That</title>
+
+<style>
+body {
+  font-family: sans-serif;
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
+/* card */
+.card {
+  background: white;
+  color: black;
+  border-radius: 20px;
+  padding: 20px;
+  max-width: 400px;
+  margin: auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* progress */
+#progress {
+  margin-bottom: 10px;
+}
+
+.bar {
+  height: 8px;
+  background: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: 0.4s;
+}
+
+/* buttons */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 18px;
+  margin: 10px 0;
+  font-size: 18px;
+  border-radius: 15px;
+  border: none;
+  background: #f5f5f5;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  background: #ddd;
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+/* animation */
+.fade {
+  animation: fade 0.3s;
+}
+
+@keyframes fade {
+  from { opacity: 0; transform: scale(0.9);}
+  to { opacity: 1; transform: scale(1);}
+}
+
+.spin {
+  animation: spin 0.5s;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
+
+/* reset */
+.reset {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+}
+</style>
+</head>
+
+<body>
+
+<h1>This or That 🤔</h1>
+
+<div class="card">
+
+  <div id="progress"></div>
+
+  <div class="bar">
+    <div class="bar-fill" id="barFill"></div>
+  </div>
+
+  <button class="btn" onclick="choose('A')" id="optA"></button>
+  <button class="btn" onclick="choose('B')" id="optB"></button>
+
+  <button class="reset" onclick="resetGame()">Reset 🔁</button>
+
+</div>
+
+<script>
+// ================= DATA =================
+const questions = [
+  ["ไอศกรีม 🍦", "เค้ก 🍰"],
+  ["ฝน 🌧️", "หิมะ ❄️"],
+  ["ข้าว 🍚", "เส้น 🍜"],
+  ["Anime 🎌", "Movie 🎬"],
+  ["ทะเล 🌊", "ภูเขา ⛰️"],
+  ["อาหารไทย 🇹🇭", "International Food 🌍"],
+  ["Mystery Movie 🕵️", "Romantic Movie 💖"],
+  ["ร้องเพลง 🎤", "เต้น 💃"],
+  ["ยุโรป 🇪🇺", "เอเชีย 🌏"],
+  ["ใส่ชุดไก่ไปทำงานทุกวัน 🐔", "ใส่กระโปรงบัลเล่ต์ไปซูเปอร์ 🩰"],
+  ["หัวเราะเหมือนแตร 📯", "จามเหมือนตด 💨"],
+  ["Halloween 🎃", "Christmas 🎄"],
+  ["ซื้อของขวัญ 🎁", "ทำของขวัญเอง 🛠️"],
+  ["ดอกไม้ 🌸", "ช็อกโกแลต 🍫"],
+  ["ทำอาหารด้วยกัน 🍳", "สั่งอาหาร 🍔"],
+  ["ทริปพักผ่อน 🏖️", "Road Trip 🚗"],
+  ["เดินป่า 🌲", "ปั่นจักรยาน 🚴"],
+  ["ดอกไม้ 🌷", "ต้นไม้ 🌳"],
+  ["อากาศร้อน 🔥", "อากาศเย็น ❄️"],
+  ["กลางคืน 🌙", "กลางวัน ☀️"],
+  ["มีชื่อเสียง 🌟", "ร่ำรวย 💰"],
+  ["ใช้ชีวิตไม่เสียใจ 💭", "แก้ไขอดีต ⏳"],
+  ["ดูหนัง 🎬", "ฟังเพลง 🎧"],
+  ["เซอร์ไพรส์ 🎉", "วางแผนล่วงหน้า 📅"],
+  ["โทร 📞", "แชท 💬"],
+  ["แกล้งเพื่อน 😂", "โดนแกล้ง 😅"],
+  ["บุฟเฟต์ 🍖", "Fine Dining 🍽️"],
+  ["วางแผนเป๊ะ 📋", "Go with the flow 🌊"],
+  ["เล่นกีฬา ⚽", "ดูกีฬา 📺"],
+  ["ซื้อเอง 🛍️", "Shop Online 🛒"],
+  ["ทำงานคนเดียว 👤", "ทำงานเป็นทีม 👥"],
+  ["ความมั่นคง 🏦", "ความฝัน ✨"],
+  ["โฟกัสอนาคต 🔮", "อยู่กับปัจจุบัน 🌿"],
+  ["เที่ยวต่างประเทศ ✈️", "เที่ยวไทย 🇹🇭"],
+  ["ขึ้นดอย ⛰️", "ดำน้ำ 🤿"],
+  ["เดินเล่น 🚶", "ขี่รถ 🚗"],
+  ["เล่นเกม 🎮", "ดูสตรีม 📺"],
+  ["ร้านอาหาร 🍽️", "Street Food 🍢"],
+  ["ฤดูฝน 🌧️", "ฤดูหนาว ❄️"],
+  ["กีฬา 🏀", "ดนตรี 🎵"],
+  ["ดูหนัง 🎬", "ร้องเกะ 🎤"],
+  ["จีบเอง 😏", "โดนจีบ 😳"],
+  ["ขาสั้น 🩳", "ขายาว 👖"],
+  ["สร้อย 📿", "กำไล 💍"],
+  ["แตะ 🩴", "ผ้าใบ 👟"],
+  ["แหวน 💍", "นาฬิกา ⌚"],
+  ["มัดผม 🪢", "ปล่อยผม 💇"],
+  ["ขาว ⚪", "ดำ ⚫"],
+  ["ผมลอน 🌀", "ผมตรง ➖"],
+  ["สัก 🖋️", "เจาะหู 👂"],
+  ["Spotify 🎧", "YouTube 📺"],
+  ["เพลงไทย 🇹🇭", "เพลงสากล 🌍"],
+  ["เนื้อเพลง 📝", "ทำนอง 🎶"],
+  ["ช่อดอกไม้ 💐", "ตุ๊กตา 🧸"],
+  ["ตั้งแคมป์ ⛺", "ปีนเขา 🧗"],
+  ["Polaroid 📸", "Digital Camera 📷"],
+  ["ทำอาหาร 🍳", "อบขนม 🧁"],
+  ["ชาบู 🍲", "หมูกระทะ 🔥"],
+  ["น้ำผลไม้ 🧃", "น้ำอัดลม 🥤"],
+  ["ไม่กินอาหาร 🍽️❌", "ไม่นอน 😴❌"],
+  ["ไข่ดาว 🍳", "ไข่เจียว 🥚"],
+  ["ล้างจาน 🍽️", "ซักผ้า 🧺"],
+  ["กาแฟ ☕", "ชา 🍵"],
+  ["แมว 🐱", "หมา 🐶"]
+];
+
+// ================= STATE =================
+let usedIndexes = JSON.parse(localStorage.getItem("used")) || [];
+let history = JSON.parse(localStorage.getItem("history")) || [];
+let currentIndex = null;
+
+// ================= FUNCTIONS =================
+function updateProgress() {
+  const percent = (usedIndexes.length / questions.length) * 100;
+
+  document.getElementById("progress").innerText =
+    `${usedIndexes.length} / ${questions.length}`;
+
+  document.getElementById("barFill").style.width = percent + "%";
+}
+
+// 🎰 animation สุ่ม
+function spinAnimation(callback) {
+  let i = 0;
+  const interval = setInterval(() => {
+    const rand = Math.floor(Math.random() * questions.length);
+    document.getElementById("optA").innerText = questions[rand][0];
+    document.getElementById("optB").innerText = questions[rand][1];
+
+    i++;
+    if (i > 8) {
+      clearInterval(interval);
+      callback();
+    }
+  }, 60);
+}
+
+function nextQuestion() {
+  if (usedIndexes.length === questions.length) {
+    alert("เล่นครบแล้ว 🎉");
+    usedIndexes = [];
+    localStorage.setItem("used", JSON.stringify(usedIndexes));
+  }
+
+  spinAnimation(() => {
+    let randomIndex;
+    do {
+      randomIndex = Math.floor(Math.random() * questions.length);
+    } while (usedIndexes.includes(randomIndex));
+
+    currentIndex = randomIndex;
+    const q = questions[randomIndex];
+
+    document.getElementById("optA").innerText = q[0];
+    document.getElementById("optB").innerText = q[1];
+
+    document.getElementById("optA").classList.add("fade");
+    document.getElementById("optB").classList.add("fade");
+
+    updateProgress();
+  });
+}
+
+function choose(choice) {
+  const q = questions[currentIndex];
+
+  history.push({
+    question: q,
+    answer: choice,
+    time: new Date()
+  });
+
+  localStorage.setItem("history", JSON.stringify(history));
+
+  usedIndexes.push(currentIndex);
+  localStorage.setItem("used", JSON.stringify(usedIndexes));
+
+  // effect ตอนกด
+  document.getElementById(choice === 'A' ? "optA" : "optB")
+    .style.background = "#a5b4fc";
+
+  setTimeout(() => {
+    nextQuestion();
+  }, 300);
+}
+
+function resetGame() {
+  usedIndexes = [];
+  history = [];
+  localStorage.clear();
+  nextQuestion();
+}
+
+// start
+nextQuestion();
+
+</script>
+
+</body>
+</html>
